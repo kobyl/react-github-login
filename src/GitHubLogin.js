@@ -41,7 +41,6 @@ class GitHubLogin extends Component {
     ));
 
     this.onRequest();
-    popup.then(data => this.onSuccess(data), error => this.onFailure(error));
   };
 
   onRequest = () => {
