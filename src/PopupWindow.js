@@ -1,4 +1,4 @@
-import { toParams, toQuery } from './utils';
+import { toParams, toQuery } from "./utils";
 
 class PopupWindow {
   constructor(id, url, options = {}) {
@@ -10,13 +10,18 @@ class PopupWindow {
   open() {
     const { url, id, options } = this;
 
-    this.window = window.open(url, id, toQuery(options, ','));
+    window.addEventListener("message", this.onMessage, false);
+    this.window = window.open(url, id, toQuery(options, ","));
   }
 
-  close() {
-    this.cancel();
+  closePopup = () => {
     this.window.close();
-  }
+  };
+
+  onMessage = (event) => {
+    console.log(`PM Received:`, event);
+    this.closePopup();
+  };
 
   poll() {
     this.promise = new Promise((resolve, reject) => {
@@ -27,16 +32,19 @@ class PopupWindow {
           if (!popup || popup.closed !== false) {
             this.close();
 
-            reject(new Error('The popup was closed'));
+            reject(new Error("The popup was closed"));
 
             return;
           }
 
-          if (popup.location.href === this.url || popup.location.pathname === 'blank') {
+          if (
+            popup.location.href === this.url ||
+            popup.location.pathname === "blank"
+          ) {
             return;
           }
 
-          const params = toParams(popup.location.search.replace(/^\?/, ''));
+          const params = toParams(popup.location.search.replace(/^\?/, ""));
 
           resolve(params);
 
@@ -70,8 +78,6 @@ class PopupWindow {
     const popup = new this(...args);
 
     popup.open();
-    popup.poll();
-
     return popup;
   }
 }
